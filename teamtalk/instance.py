@@ -798,11 +798,14 @@ class TeamTalkInstance(sdk.TeamTalk):
         msg = self.super.getMessage(100)
         event = msg.nClientEvent
         if event == sdk.ClientEvent.CLIENTEVENT_USER_STATECHANGE:
+            _log.warn(msg.user.uUserState)
             if msg.user.uUserState == 1:
                 sdk._EnableAudioBlockEventEx(self._tt, msg.user.nUserID, sdk.StreamType.STREAMTYPE_VOICE, None, True)
-            return
+            if msg.user.uUserState in (32, 33, 96, 97):
+                sdk._EnableAudioBlockEventEx(self._tt, msg.user.nUserID, sdk.StreamType.STREAMTYPE_MEDIAFILE_AUDIO, None, True)
             if msg.user.uUserState == 0:
                 sdk._EnableAudioBlockEventEx(self._tt, msg.user.nUserID, sdk.StreamType.STREAMTYPE_VOICE, None, False)
+                sdk._EnableAudioBlockEventEx(self._tt, msg.user.nUserID, sdk.StreamType.STREAMTYPE_MEDIAFILE_AUDIO, None, False)
             return
         if event == sdk.ClientEvent.CLIENTEVENT_CMD_USER_JOINED:
             if msg.user.nUserID == self.super.getMyUserID():
