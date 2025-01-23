@@ -798,7 +798,6 @@ class TeamTalkInstance(sdk.TeamTalk):
         msg = self.super.getMessage(100)
         event = msg.nClientEvent
         if event == sdk.ClientEvent.CLIENTEVENT_USER_STATECHANGE:
-            _log.warn(msg.user.uUserState)
             if msg.user.uUserState == 1:
                 sdk._EnableAudioBlockEventEx(self._tt, msg.user.nUserID, sdk.StreamType.STREAMTYPE_VOICE, None, True)
             if msg.user.uUserState in (32, 33, 96, 97):
@@ -839,7 +838,10 @@ class TeamTalkInstance(sdk.TeamTalk):
             else:
                 user = TeamTalkUser(self, msg.nSource)
                 real_ab = AudioBlock(user, ab2)
-                self.bot.dispatch("user_audio", real_ab)
+                if ab2.uStreamTypes==4:
+                    self.bot.dispatch("user_media_audio", real_ab)
+                else:    
+                    self.bot.dispatch("user_audio", real_ab)
             # release
             _ReleaseUserAudioBlock(self._tt, ab)
             return
